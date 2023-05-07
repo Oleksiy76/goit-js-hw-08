@@ -7,15 +7,19 @@ const refs = {
 };
 
 const STORAGE_KEY = 'feedback-form-state';
-const formData = {};
+
+let formData = {};
+
+filledForm();
 
 refs.form.addEventListener('input', throttle(onFormInput, 500));
 refs.form.addEventListener('submit', onFormSubmit);
 
-filledForm();
-
-function onFormInput(evt) {
-  formData[evt.target.name] = evt.target.value;
+function onFormInput() {
+  formData = {
+    email: refs.email.value,
+    message: refs.message.value,
+  };
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
 }
@@ -23,16 +27,27 @@ function onFormInput(evt) {
 function onFormSubmit(evt) {
   evt.preventDefault();
 
-  console.log(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+  if (refs.email.value === '' || refs.message.value === '') {
+    alert('Всі поля повинні бути заповнені!');
+    return;
+  }
 
-  localStorage.removeItem(STORAGE_KEY);
+  JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+  console.log({
+    email: refs.email.value,
+    message: refs.message.value,
+  });
 
   refs.form.reset();
+
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 function filledForm() {
-  const savedObj = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  if (savedObj) {
+  const savedData = localStorage.getItem(STORAGE_KEY);
+  if (savedData) {
+    const savedObj = JSON.parse(savedData);
     refs.email.value = savedObj.email || '';
     refs.message.value = savedObj.message || '';
   }
